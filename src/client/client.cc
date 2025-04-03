@@ -9,6 +9,10 @@
 #include<arpa/inet.h> //inet_addr
 #include<netdb.h> //hostent
 #include<vector>
+
+#include "MessageType.hh"
+#include "ConnectMessage.hh"
+#include "utility/MessageConstructor.hh"
  
 using namespace std;
  
@@ -26,7 +30,7 @@ private:
 public:
     tcp_client();
     bool conn(string, int);
-    bool send_data(string data);
+    bool send_data(const std::vector<uint8_t>& data);
     string receive(int);
 };
  
@@ -74,7 +78,7 @@ bool tcp_client::conn(string address , int port)
         }
          
         //Cast the h_addr_list to in_addr , since h_addr_list also has the ip address in long format only
-        addr_list = reinterpret_cast<in_addr **>(he->h_addr_list);
+        addr_list = reinterpret_cast<in_addr **>(he->h_addr_list); // here is dangerous, has to be carefull
  
         for(int i = 0; addr_list[i] != NULL; i++)
         {
@@ -110,10 +114,10 @@ bool tcp_client::conn(string address , int port)
 /**
     Send data to the connected host
 */
-bool tcp_client::send_data(string data)
+bool tcp_client::send_data(const std::vector<uint8_t>& data)
 {
     //Send some data
-    if( send(sock , data.c_str() , strlen( data.c_str() ) , 0) < 0)
+    if( send(sock , data.data() , data.size() , 0) < 0)
     {
         perror("Send failed : ");
         return false;
@@ -128,7 +132,7 @@ bool tcp_client::send_data(string data)
 */
 string tcp_client::receive(int size=512)
 {
-    std::vector<char> buffer(size);
+    std::vector<uint8_t> buffer(size, 0);
      
     //Receive a reply from the server
     if( recv(sock , buffer.data(), sizeof(buffer) , 0) < 0)
@@ -143,12 +147,19 @@ string tcp_client::receive(int size=512)
 int main()
 {
     tcp_client c;
-     
+    // Step 1: send Connect Message
+    ConnectMessage messages = {
+        .type = MessageType::Connect,
+        .size_pyld = 1
+    };
+
+    std::vector<uint8_t> con_msg = construct_connectMsg(messages);
+
     //connect to host
     c.conn("localhost" , 8080);
      
     //send some data
-    c.send_data("niabab");
+    c.send_data(con_msg);
      
     //receive and echo reply
     cout<<"----------------------------\n\n";

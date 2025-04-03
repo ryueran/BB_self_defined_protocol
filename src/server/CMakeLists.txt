@@ -1,5 +1,8 @@
 # Include directories
-include_directories(include)
+include_directories(
+    include
+    ../Message
+)
 
 set(SRC_FILES
     src/main_server.cc        # Entry point

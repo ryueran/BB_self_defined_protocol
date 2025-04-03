@@ -25,7 +25,7 @@ Acceptor::~Acceptor()
 void Acceptor::server_bind()
 {
     // Bind the socket
-    if (bind(server_fd_, reinterpret_cast<sockaddr *>(&server_addr_), sizeof(server_addr_)) < 0) {
+    if (bind(server_fd_, reinterpret_cast<sockaddr *>(&server_addr_), sizeof(server_addr_)) < 0) { // here is dangrous, has to be carefull
         perror("bind failed");
         close(server_fd_);
         exit(EXIT_FAILURE);
@@ -55,7 +55,7 @@ void Acceptor::server_listen()
 void Acceptor::server_accept(int server_fd) // tech debt
 {
     socklen_t addrlen = sizeof(server_addr_);
-    socket_fd_ = accept(server_fd, reinterpret_cast<sockaddr *>(&server_addr_), &addrlen);
+    socket_fd_ = accept(server_fd, reinterpret_cast<sockaddr *>(&server_addr_), &addrlen); // here is dangerous, has to be carefull
     std::cout << "New Socket fd: " << socket_fd_ << std::endl; // The problem happens here, the new connection that calls the accept will overload the old acceüt of connection
     int flags = fcntl(socket_fd_, F_GETFL, 0);
     if (flags == -1) {
