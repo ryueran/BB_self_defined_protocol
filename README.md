@@ -17,3 +17,6 @@ to go deep into to complete my knowledge system
 
 I don't know if someone from this company would see this, but all the best wishes to this company, a company with this high standard of development
 deserves to be the leader of the market (and it already is) and anyone who can have a chance to work there is the luckiest guy in the world
+
+Note: The message sequence is shown as below:
+![Alt text](message sequence.png?raw=true "Optional Title")
