@@ -5,8 +5,8 @@ and in this interview one of the interviewers has prepared a small task for me t
 
 I have to confess I did not deliver a good performance in this interview (I want to apologyze to them for that,
 cause this company treated me very friendly and I could see that they took this interview really seriously),
-cause I haven't touched safe casting topic for a very long time and have already forgotten some basic concepts,
-so I did not implement it fluently and could not answer some of the questions
+since I haven't touched safe casting topic for a very long time and have already forgotten some basic concepts,
+I did not implement it fluently and could not answer some of the questions
 
 In this repository I will implement a self defined protocol with c++ and socket to make a clear understand of safe casting
 (anyone who sees this, please read 2. Chapter of C++ Primer, it helps a lot about memory safety with different data types, please, please,
