@@ -27,9 +27,11 @@ public:
 private:
     Acceptor acceptor_;
     Reactor reactor_;
-    char message_buffer[1024];
+    std::vector<uint8_t> message_buffer = std::vector<uint8_t>(1024);
     std::map<int, std::shared_ptr<Handler>> handlers_;
+    std::map<uint32_t, uint32_t> session_; // <fd, cliend_id>
     int fd_;
+    uint8_t client_id_counter_ = 0;
 };
 
 #endif

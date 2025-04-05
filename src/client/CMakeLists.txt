@@ -1,4 +1,5 @@
 include_directories(
     ../Message
+    include/
 )
-add_executable(client client.cc)
+add_executable(client src/client.cc)

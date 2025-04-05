@@ -1,3 +1,5 @@
+## Why I created this repository
+
 I created this Repository to review the content of memory safety
 
 This week I got a chance of interview from a very big and advanced company,
@@ -8,7 +10,7 @@ cause this company treated me very friendly and I could see that they took this 
 since I haven't touched safe casting topic for a very long time and have already forgotten some basic concepts,
 I did not implement it fluently and could not answer some of the questions
 
-In this repository I will implement a self defined protocol with c++ and socket to make a clear understand of safe casting
+In this repository I will implement a self defined protocol with c++ and socket to make a clear understanding of safe casting
 (anyone who sees this, please read 2. Chapter of C++ Primer, it helps a lot about memory safety with different data types, please, please,
 it is very very very very important for embedded system development)
 

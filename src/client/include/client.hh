@@ -1,6 +1,6 @@
-/**
-    C++ client example using sockets
-*/
+#ifndef CLIENT_HH
+#define CLIENT_HH
+
 #include<iostream>    //cout
 #include<stdio.h> //printf
 #include<string.h>    //strlen
@@ -10,10 +10,6 @@
 #include<netdb.h> //hostent
 #include<vector>
 
-#include "MessageType.hh"
-#include "ConnectMessage.hh"
-#include "utility/MessageConstructor.hh"
- 
 using namespace std;
  
 /**
@@ -31,7 +27,7 @@ public:
     tcp_client();
     bool conn(string, int);
     bool send_data(const std::vector<uint8_t>& data);
-    string receive(int);
+    std::vector<uint8_t> receive(int);
 };
  
 tcp_client::tcp_client()
@@ -130,42 +126,21 @@ bool tcp_client::send_data(const std::vector<uint8_t>& data)
 /**
     Receive data from the connected host
 */
-string tcp_client::receive(int size=512)
+std::vector<uint8_t> tcp_client::receive(int size=512)
 {
     std::vector<uint8_t> buffer(size, 0);
      
     //Receive a reply from the server
-    if( recv(sock , buffer.data(), sizeof(buffer) , 0) < 0)
+    ssize_t size_msg = recv(sock , buffer.data(), sizeof(buffer) , 0);
+    if(size_msg < 0)
     {
         puts("recv failed");
     }
-     
-    string reply{buffer.begin(), buffer.end()};
-    return reply;
-}
- 
-int main()
-{
-    tcp_client c;
-    // Step 1: send Connect Message
-    ConnectMessage messages = {
-        .type = MessageType::Connect,
-        .size_pyld = 1
-    };
 
-    std::vector<uint8_t> con_msg = construct_connectMsg(messages);
-
-    //connect to host
-    c.conn("localhost" , 8080);
-     
-    //send some data
-    c.send_data(con_msg);
-     
-    //receive and echo reply
-    cout<<"----------------------------\n\n";
-    cout<<c.receive(1024);
-    cout<<"\n\n----------------------------\n\n";
-     
-    //done
-    return 0;
+    buffer.resize(size_msg);
+    uint32_t client_id = buffer[buffer.size() - 3] | buffer[buffer.size() - 2] | buffer[buffer.size() - 1] | buffer[buffer.size() - 0];
+    std::cout << "client id is: " << unsigned(client_id) << std::endl;
+    return buffer;
 }
+
+#endif

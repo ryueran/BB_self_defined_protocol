@@ -3,12 +3,14 @@
 
 #include <iostream>
 #include <functional>
+#include <vector>
 
 #define BUFFER_SIZE 1024
 
 using CallBack = std::function<void(int)>;
 
 enum class EventType {Read, Write, Close};
+enum class HandlerState {Init, Connected, Loaded};
 
 class Handler
 {
@@ -44,7 +46,9 @@ public:
     void set_out_Epoll();
     bool is_in_Epoll();
     EventType get_handler_event();
-    char message_buffer[1024];
+    HandlerState handler_state = HandlerState::Init;
+    std::vector<uint8_t> read_message_buffer = std::vector<uint8_t>(1024);
+    std::vector<uint8_t> write_message_buffer = std::vector<uint8_t>(1024);
 };
 
 #endif
