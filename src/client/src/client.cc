@@ -17,33 +17,78 @@
 #include "utility/MessageConstructor.hh"
 #include "client.hh"
 
+tcp_client c;
+
 enum class StateClient // should be integrated to clinet class later
 {
-    Init,
+    Idle,
     HandShaked
 };
 
-void read_event(std::future<std::vector<uint8_t>>& msg, StateClient& state)
+// void read_event(std::future<std::vector<uint8_t>>& msg, StateClient& state)
+// {
+//     if(msg.get()[0] == static_cast<uint8_t>(MessageType::Accept) && state == StateClient::Idle)
+//     {
+//         state = StateClient::HandShaked;
+//         std::cout << "Handshake with Server accomplished!" << std::endl;
+//         // send StoreMessage
+//     }
+
+//     while(1)
+//     {
+        
+//     }
+// }
+std::future<std::vector<uint8_t>> async_recv() {
+    return std::async(std::launch::async, [] {
+        return c.receive(1024);
+    });
+}
+
+void on_idle(StateClient& state)
 {
-    if(msg.get()[0] == static_cast<uint8_t>(MessageType::Accept))
+    std::cout << "Client is idle" << std::endl;
+    std::future<std::vector<uint8_t>> fut_msg = async_recv();
+    std::vector<uint8_t> msg = fut_msg.get();
+    if(msg[0] == static_cast<uint8_t>(MessageType::Accept) && state == StateClient::Idle)
     {
         state = StateClient::HandShaked;
         std::cout << "Handshake with Server accomplished!" << std::endl;
         // send StoreMessage
+    }
+    else
+    {
+        std::cout << "Received message: " << msg[0] << std::endl;
+    }
+}
+
+void run(StateClient& state)
+{
+    while (true)
+    {
+        switch (state)
+        {
+            case StateClient::Idle:
+                on_idle(state);
+                break;
+            case StateClient::HandShaked:
+                // Handle HandShaked state
+                break;
+            default:
+                break;
+        }
     }
 }
 
 int main()
 {
 
-    tcp_client c;
     std::promise<std::vector<uint8_t>> prom_msg;
     std::future<std::vector<uint8_t>> fut_msg = prom_msg.get_future();
 
     // start state machine of client
-    StateClient state = StateClient::Init;
+    StateClient state = StateClient::Idle;
 
-    std::thread th1(read_event, std::ref(fut_msg), std::ref(state));
     // Step 1: send Connect Message
     ConnectMessage messages = {
         .type = MessageType::Connect,
@@ -60,10 +105,9 @@ int main()
      
     //receive and echo reply
     cout<<"----------------------------\n\n";
-    prom_msg.set_value(c.receive(1024));
+    run(state);
     cout<<"\n\n----------------------------\n\n";
 
-    th1.join();
     //done
     return 0;
 }
