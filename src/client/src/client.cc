@@ -29,6 +29,7 @@ void read_event(std::future<std::vector<uint8_t>>& msg, StateClient& state)
     {
         state = StateClient::HandShaked;
         std::cout << "Handshake with Server accomplished!" << std::endl;
+        // send StoreMessage
     }
 }
 
