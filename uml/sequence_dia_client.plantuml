@@ -1,0 +1,7 @@
+@startuml
+Client -> State_Machine: Subscribe state machine ('init')
+Client -> Server: ConnectMessage
+Server -> Client: AcceptMessage
+Client -> State_Machine: Client ID accepted
+State_Machine -> State_Machine: From 'init' to hand 'shaked'
+@enduml
