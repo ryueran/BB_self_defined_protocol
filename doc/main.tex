@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}   % 插入图片
+\usepackage{amsmath}    % 数学公式
+\usepackage{hyperref}   % 超链接
+
+\title{The documentation about communication protocol}
+\author{Muzi}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Design Specification}
+\subsection{Key-Value-Store-Protocol}
+\subsubsection{Introduction and Overview}
+Thid document specifies the Key-Value-Store-Protocol (KVSP). The protocol allows a client to store key-value pairs on a server.
+Stored values can be retrieved by their keys. All messages are transferred via a TCP socket. The server listens for incoming connection on such socket.
+Clients connect to the server to interact with it.
+\subsubsection{Data Types}
+All messages consis of values. Each value has one of the following data types:
+\begin{tabular}{|l|c|r|}
+    \hline
+    Data Type & Description\\
+    \hline
+    uint8 & unsigned 8 bit integer \\
+    uint32 & unsigned 32 bit integer \\
+    String & see below \\
+    Enumeration & see below \\
+    \hline
+\end{tabular} \\
+Note: All values are transmitted in network byte order (big-endian).
+\subsection{Enumerations}
+They are transferred as uint8 values. \\
+\begin{center}
+\begin{tabular}{|p{3cm}|p{3cm}|}
+    \hline
+    \multicolumn{2}{|c|}{MessageType} \\  % {3}表示合并列数，{|c|}为对齐和竖线
+    \hline
+    Name & Value \\
+    Unknown & 0 \\
+    Connect & 1 \\
+    Accept & 2 \\
+    Error & 3 \\
+    Store & 4 \\
+    Load & 5 \\
+    Value & 6 \\
+    \hline
+\end{tabular}
+
+\begin{tabular}{|p{6cm}|p{3cm}|}
+    \hline
+    \multicolumn{2}{|c|}{Error} \\  % {3}表示合并列数，{|c|}为对齐和竖线
+    \hline
+    Name & Value \\
+    ConnectMessageExcepted & 0 \\
+    KeyNotFound & 1 \\
+    \hline
+\end{tabular} 
+\end{center}\\
+
+\section{Sequence Diagram}
+J
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
