@@ -27,7 +27,7 @@ deserves to be the leader of the market (and it already is) and anyone who can h
 
 ## Eplaination of protocol message (application layer)
 
-MessageType
+## MessageType
 | Name          | Value         |
 | ------------- | ------------- |
 | Unknown       | 0             |
@@ -38,7 +38,7 @@ MessageType
 | Load          | 5             |
 | Value         | 6             |
 
-ConnecMessage
+## ConnecMessage
 If the type of message is Connect, then this message is a ConnectMessage, Messages of this
 type have no additional payload. Thus, the playload size if always 0. After connecting to the server's
 TCP socket, a client shall send a message of this type to initiate the hand shake.
