@@ -27,7 +27,7 @@ public:
     tcp_client();
     bool conn(string, int);
     bool send_data(const std::vector<uint8_t>& data);
-    std::vector<uint8_t> receive(int);
+    uint32_t receive(int);
 };
  
 tcp_client::tcp_client()
@@ -126,7 +126,7 @@ bool tcp_client::send_data(const std::vector<uint8_t>& data)
 /**
     Receive data from the connected host
 */
-std::vector<uint8_t> tcp_client::receive(int size=512)
+uint32_t tcp_client::receive(int size=512)
 {
     std::vector<uint8_t> buffer(size, 0);
      
@@ -140,7 +140,7 @@ std::vector<uint8_t> tcp_client::receive(int size=512)
     buffer.resize(size_msg);
     uint32_t client_id = buffer[buffer.size() - 3] | buffer[buffer.size() - 2] | buffer[buffer.size() - 1] | buffer[buffer.size() - 0];
     std::cout << "client id is: " << unsigned(client_id) << std::endl;
-    return buffer;
+    return client_id;
 }
 
 #endif
