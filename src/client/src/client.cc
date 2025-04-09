@@ -18,68 +18,46 @@
 #include "utility/MessageConstructor.hh"
 #include "client.hh"
 
-namespace sml = boost::sml;
+
 
 tcp_client c;
-// Define events
-struct client_hello {};
-struct server_ack1 {};
-struct timeout {};
 
-// Define action and conditions
-const auto send_client_hello = [] {
-    std::cout << "[Client] sends handshake request: ConnectMessage" << std::endl;
-    // Step 1: send Connect Message
-    ConnectMessage messages = {
-        .type = MessageType::Connect,
-        .size_pyld = 1
-    };
-
-    std::vector<uint8_t> con_msg = construct_connectMsg(messages);
-    auto sent =  std::async(std::launch::async, [&] {
-        return c.send_data(con_msg);
-    });
-    return sent.get();
-};
-
-const auto handle_server_ack1 = [](const auto&) {
-    std::cout << "[Client] Receive response: ServerAck1" << std::endl;
-    auto client_id = std::async(std::launch::async, [] {
-        std::cout << "Handshake accomplished!" << std::endl;
-        return c.receive(1024);
-    });
-
-    if(client_id.get() > 0)
-    {
-        return true;
-    }
-    return false;
-};
-
-const auto send_ack = [] {
-    std::cout << "Timeout!" << std::endl;
-    return true;
-};
-
-// Define state machine
-struct ClientFSM {
-    auto operator()() const {
-        using namespace sml;
-        return make_transition_table(
-            *"established"_s + event<client_hello> / send_client_hello = "fin wait 1"_s,
-            "fin wait 1"_s + event<server_ack1> [ handle_server_ack1 ] = "fin wait 2"_s,
-            "timed wait"_s + event<timeout> / send_ack = X
-        );
-    }
-};
-
-enum class StateClient // should be integrated to clinet class later
+typedef enum
 {
+    Client_Id_Accepted,
+    // other events...
+} Event;
+
+typedef enum {
     Idle,
-    HandShaked
+    HandShaked,
+    // other message types...
+} ClientState;
+
+struct ClientSwitcher {
+    ClientState state;
 };
 
-std::future<uint32_t> async_recv() {
+void ClientSwitcher_Feed(struct ClientSwitcher* state, Event event)
+{
+    switch (state->state)
+    {
+        case Idle:
+            if (event == Client_Id_Accepted)
+            {
+                std::cout << "Client is HandShaked" << std::endl;
+                state->state = HandShaked;
+            }
+            break;
+        case HandShaked:
+            // Handle HandShaked state
+            break;
+        default:
+            break;
+    }
+}
+
+std::future<std::vector<uint8_t>> async_recv() {
     return std::async(std::launch::async, [] {
         return c.receive(1024);
     });
@@ -91,56 +69,35 @@ std::future<bool> async_send(const std::vector<uint8_t>& msg) {
     });
 }
 
-// void on_idle(StateClient& state)
-// {
-//     std::cout << "Client is idle" << std::endl;
+void run(struct ClientSwitcher* state)
+{
+    std::future<std::vector<uint8_t>> buffer_recv = async_recv();
+    auto msg = buffer_recv.get();
+    uint32_t client_id = msg[msg.size() - 3] | msg[msg.size() - 2] | msg[msg.size() - 1] | msg[msg.size() - 0];
+    std::cout << "client id is: " << unsigned(client_id) << std::endl;
+    if(msg[0] == static_cast<uint8_t>(MessageType::Accept))
+    {
+        ClientSwitcher_Feed(state, Client_Id_Accepted);
+    }
 
-//     // Step 1: send Connect Message
-//     ConnectMessage messages = {
-//         .type = MessageType::Connect,
-//         .size_pyld = 1
-//     };
+}
 
-//     std::vector<uint8_t> con_msg = construct_connectMsg(messages);
+void ClientState_Init(struct ClientSwitcher* state)
+{
+    std::cout << "Client is idle" << std::endl;
+    state->state = Idle;
 
-//     auto send_future = async_send(con_msg);
-//     if (send_future.get()) {
-//         std::cout << "Connect message sent!" << std::endl;
-//         std::future<std::vector<uint8_t>> fut_msg = async_recv();
-//         std::vector<uint8_t> msg = fut_msg.get();
-//         if(msg[0] == static_cast<uint8_t>(MessageType::Accept) && state == StateClient::Idle)
-//         {
-//             state = StateClient::HandShaked;
-//             std::cout << "Handshake with Server accomplished!" << std::endl;
-//             // send StoreMessage
-//         }
-//         else
-//         {
-//             std::cout << "Received message: " << msg[0] << std::endl;
-//         }
-//     } else {
-//         std::cerr << "Failed to send connect message!" << std::endl;
-//         return;
-//     }
-// }
+    // Step 1: send Connect Message
+    ConnectMessage messages = {
+        .type = MessageType::Connect,
+        .size_pyld = 1
+    };
+    std::vector<uint8_t> con_msg = construct_connectMsg(messages);
+    c.send_data(con_msg);
+    std::cout << "Connect message sent!" << std::endl;
+}
 
-// void run(StateClient& state)
-// {
-//     while (true)
-//     {
-//         switch (state)
-//         {
-//             case StateClient::Idle:
-//                 on_idle(state);
-//                 break;
-//             case StateClient::HandShaked:
-//                 // Handle HandShaked state
-//                 break;
-//             default:
-//                 break;
-//         }
-//     }
-// }
+
 
 int main()
 {
@@ -160,12 +117,10 @@ int main()
     // cout<<"----------------------------\n\n";
     // run(state);
     // cout<<"\n\n----------------------------\n\n";
-    sml::sm<ClientFSM> fsm;
+    struct ClientSwitcher fsm;
+    ClientState_Init(&fsm);
 
-    // 模拟事件流
-    fsm.process_event(client_hello{}); // Idle → Handshaked
-    fsm.process_event(server_ack1{});  // Handshaked → MessageValued
-    fsm.process_event(timeout{});  // MessageValued → 终止
+    run(&fsm);
 
     //done
     return 0;
