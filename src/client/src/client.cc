@@ -71,6 +71,7 @@ std::future<bool> async_send(const std::vector<uint8_t>& msg) {
 
 void run(struct ClientSwitcher* state)
 {
+    // Run state machine
     std::future<std::vector<uint8_t>> buffer_recv = async_recv();
     auto msg = buffer_recv.get();
     uint32_t client_id = msg[msg.size() - 3] | msg[msg.size() - 2] | msg[msg.size() - 1] | msg[msg.size() - 0];
