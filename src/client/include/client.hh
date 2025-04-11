@@ -165,20 +165,33 @@ void tcp_client::init_fms()
 void tcp_client::run_fms()
 {
     // Run state machine
-    std::vector<uint8_t> buffer_recv = receive(1024);
-    uint32_t client_id = buffer_recv[buffer_recv.size() - 3] | buffer_recv[buffer_recv.size() - 2] | 
+    std::future<void> consume = std::async(std::launch::async | std::launch::deferred, [&] () 
+        {
+            while (true) {
+                std::vector<uint8_t> buffer_recv = receive(1024);
+                uint32_t client_id = buffer_recv[buffer_recv.size() - 3] | buffer_recv[buffer_recv.size() - 2] | 
                             buffer_recv[buffer_recv.size() - 1] | buffer_recv[buffer_recv.size() - 0];
-    std::cout << "client id is: " << unsigned(client_id) << std::endl;
-    if(buffer_recv[0] == static_cast<uint8_t>(MessageType::Accept) && fsm.fsm.state == Idle)
-    {
-        fsm.event_produce(Client_Id_Accepted);
-        std::cout << "Handshake accomplished!" << std::endl;
-    }
+                std::cout << "client id is: " << unsigned(client_id) << std::endl;
+                if(buffer_recv[0] == static_cast<uint8_t>(MessageType::Accept) && fsm.fsm.state == Idle)
+                {
+                    fsm.event_produce(Client_Id_Accepted);
+                    std::cout << "Handshake accomplished!" << std::endl;
+                }
+            }
+        }
+    );
+    
 }
 
 void tcp_client::read_event_fms()
 {
-    fsm.event_consume(&fsm.fsm);
+    std::future<void> produce = std::async(std::launch::async, [&] () 
+        {
+            while (true) {
+                fsm.event_consume(&fsm.fsm);
+            }
+        }
+    );
 }
 
 #endif

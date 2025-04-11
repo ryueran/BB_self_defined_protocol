@@ -37,22 +37,8 @@ int main()
     // run(state);
     // cout<<"\n\n----------------------------\n\n";
     c.init_fms();
-    std::future<void> consume = std::async(std::launch::async | std::launch::deferred, [&] () 
-        {
-            while (true) {
-                c.run_fms();
-            }
-        }
-    );
-
-    std::future<void> produce = std::async(std::launch::async, [&] () 
-        {
-            while (true) {
-                c.read_event_fms();
-            }
-        }
-    );
-
+    c.run_fms();
+    c.read_event_fms();
     //done
     return 0;
 }
