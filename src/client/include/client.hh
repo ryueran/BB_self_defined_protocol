@@ -9,6 +9,9 @@
 #include<arpa/inet.h> //inet_addr
 #include<netdb.h> //hostent
 #include<vector>
+#include<thread>
+#include<future>
+#include<utility/StateMachine.hh>
 
 using namespace std;
  
@@ -22,12 +25,17 @@ private:
     std::string address;
     int port;
     struct sockaddr_in server;
+    State fsm;
      
 public:
     tcp_client();
     bool conn(string, int);
     bool send_data(const std::vector<uint8_t>& data);
     std::vector<uint8_t> receive(int);
+    // Statemachine manipulation
+    void init_fms();
+    void run_fms();
+    void read_event_fms();
 };
  
 tcp_client::tcp_client()
@@ -140,6 +148,37 @@ std::vector<uint8_t> tcp_client::receive(int size=512)
     buffer.resize(size_msg);
     
     return buffer;
+}
+
+void tcp_client::init_fms()
+{
+    // Step 1: send Connect Message
+    ConnectMessage messages = {
+        .type = MessageType::Connect,
+        .size_pyld = 1
+    };
+    std::vector<uint8_t> con_msg = construct_connectMsg(messages);
+    send_data(con_msg);
+    std::cout << "Connect message sent!" << std::endl;
+}
+
+void tcp_client::run_fms()
+{
+    // Run state machine
+    std::vector<uint8_t> buffer_recv = receive(1024);
+    uint32_t client_id = buffer_recv[buffer_recv.size() - 3] | buffer_recv[buffer_recv.size() - 2] | 
+                            buffer_recv[buffer_recv.size() - 1] | buffer_recv[buffer_recv.size() - 0];
+    std::cout << "client id is: " << unsigned(client_id) << std::endl;
+    if(buffer_recv[0] == static_cast<uint8_t>(MessageType::Accept) && fsm.fsm.state == Idle)
+    {
+        fsm.ClientSwitcher_event_produce(Client_Id_Accepted);
+        std::cout << "Handshake accomplished!" << unsigned(client_id) << std::endl;
+    }
+}
+
+void tcp_client::read_event_fms()
+{
+    fsm.ClientSwitcher_event_consume(&fsm.fsm);
 }
 
 #endif
