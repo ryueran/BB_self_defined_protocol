@@ -171,14 +171,14 @@ void tcp_client::run_fms()
     std::cout << "client id is: " << unsigned(client_id) << std::endl;
     if(buffer_recv[0] == static_cast<uint8_t>(MessageType::Accept) && fsm.fsm.state == Idle)
     {
-        fsm.ClientSwitcher_event_produce(Client_Id_Accepted);
-        std::cout << "Handshake accomplished!" << unsigned(client_id) << std::endl;
+        fsm.event_produce(Client_Id_Accepted);
+        std::cout << "Handshake accomplished!" << std::endl;
     }
 }
 
 void tcp_client::read_event_fms()
 {
-    fsm.ClientSwitcher_event_consume(&fsm.fsm);
+    fsm.event_consume(&fsm.fsm);
 }
 
 #endif

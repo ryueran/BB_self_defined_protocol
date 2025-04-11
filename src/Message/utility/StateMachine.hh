@@ -35,12 +35,12 @@ public:
         std::cout << "Client is idle" << std::endl;
         fsm.state = Idle;
     }
-    void ClientSwitcher_event_produce(Event event)
+    void event_produce(Event event)
     {
         events.push_back(event);
     }
 
-    void ClientSwitcher_event_consume(struct ClientSwitcher* state)
+    void event_consume(struct ClientSwitcher* state)
     {
         Event event;
         if (events.size() > 0)
