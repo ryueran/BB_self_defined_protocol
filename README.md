@@ -25,26 +25,5 @@ deserves to be the leader of the market (and it already is) and anyone who can h
   <img alt="Shows Ankaios logo" src="message sequence.png">
 </picture>
 
-## Eplaination of protocol message (application layer)
-
-## MessageType
-| Name          | Value         |
-| ------------- | ------------- |
-| Unknown       | 0             |
-| Connect       | 1             |
-| Accept        | 2             |
-| Error         | 3             |
-| Store         | 4             |
-| Load          | 5             |
-| Value         | 6             |
-
-## ConnecMessage
-If the type of message is Connect, then this message is a ConnectMessage, Messages of this
-type have no additional payload. Thus, the playload size if always 0. After connecting to the server's
-TCP socket, a client shall send a message of this type to initiate the hand shake.
-|               | Byte index range (inclusive)|Data type    |Description            |
-| ------------- | ----------------------------|-------------|-----------------------|
-| Header        | 0....0                      |MessageType  |The type of the message|
-|               | 1....4                      |uint32       |The size of the payload in bytes|
-| Accept        | 5....8                      |uint32       |The client id, this is a unique number assigned to the client by the server|
+For furhter information, please read the documentation main.pdf
  
