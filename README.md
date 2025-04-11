@@ -14,7 +14,7 @@ In this repository I will implement a self defined protocol with c++ and socket 
 (anyone who sees this, please read 2. Chapter of C++ Primer, it helps a lot about memory safety with different data types, please, please,
 it is very very very very important for embedded system development)
 
-Thanks to this company and to the interviewers and the presentation from Bjarne Stroustrup, thank everyone who let me know where I still need
+Thanks to this company and to the interviewers and the presentation from Bjarne Stroustrup (https://www.youtube.com/watch?v=I8UvQKvOSSw), thank everyone who let me know where I still need
 to go deep into to complete my knowledge system
 
 I don't know if someone from this company would see this, but all the best wishes to this company, a company with this high standard of development
