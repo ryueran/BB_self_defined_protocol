@@ -180,7 +180,6 @@ void tcp_client::run_fms()
             }
         }
     );
-    
 }
 
 void tcp_client::read_event_fms()
